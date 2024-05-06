@@ -1,8 +1,10 @@
 package com.wonjun.blogboard.controller;
 
 import com.wonjun.blogboard.dto.ArticleForm;
+import com.wonjun.blogboard.dto.CommentDto;
 import com.wonjun.blogboard.entity.Article;
 import com.wonjun.blogboard.repository.ArticleRepository;
+import com.wonjun.blogboard.service.CommentService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,8 @@ import java.util.List;
 public class ArticleController {
     @Autowired // 스프링부트가 미리 생성해 놓은 리파지터리 객체 주입, DI
     private ArticleRepository articleRepository;
+    @Autowired
+    private CommentService commentService;
 
     @GetMapping("/articles/new")
     public String newArticleForm(){
@@ -26,7 +30,7 @@ public class ArticleController {
     }
 
     @PostMapping("/articles/create")
-    public String craeteArticle(ArticleForm form){
+    public String createArticle(ArticleForm form){
         log.info(form.toString());
         
         // DTO 엔티티로 변환
@@ -44,7 +48,9 @@ public class ArticleController {
         log.info("id = " + id);
 
         Article articleEntity = articleRepository.findById(id).orElse(null);
+        List<CommentDto> commentDtos = commentService.comments(id);
         model.addAttribute("article", articleEntity);
+        model.addAttribute("commentDtos", commentDtos);
         return "articles/show";
     }
 
