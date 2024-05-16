@@ -1,5 +1,6 @@
 package com.wonjun.blogboard.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.wonjun.blogboard.dto.CommentDto;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,23 +22,22 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne @JoinColumn(name = "article_id")
     private Article article;
 
-    @Column private String nickname;
-    @Column private String body;
+    @Column(nullable = false, length = 1000) private String body;
 
     @CreatedDate @Column(nullable = false) private LocalDateTime createdAt; // 생성일시
     @LastModifiedDate @Column(nullable = false) private LocalDateTime modifiedAt; // 수정일시
 
-    private Comment(Article article, String nickname, String body) {
+    private Comment(Article article, String body) {
         this.article = article;
-        this.nickname = nickname;
         this.body = body;
     }
 
-    public static Comment of(Article article, String nickname, String body) {
-        return new Comment(article, nickname, body);
+    public static Comment of(Article article, String body) {
+        return new Comment(article, body);
     }
 
     public static Comment createComment(CommentDto dto, Article article) {
@@ -46,7 +46,6 @@ public class Comment {
 
         return new Comment(
                 article,
-                dto.getNickname(),
                 dto.getBody()
         );
 
